@@ -42,12 +42,7 @@ if __name__ == "__main__":
         default="gs://cloud-ml-data/img/flower_photos/eval_set.csv"
     )
     # build list of model fn"s for help message
-    model_names = [name.replace("_model", "") for name in dir(model) if name.endswith("_model")]
-    parser.add_argument(
-        "--model",
-        help="Type of model. Supported types are {}".format(model_names),
-        required=True
-    )
+
     parser.add_argument(
         "--job-dir",
         help="this model ignores this field, but it is required by gcloud",

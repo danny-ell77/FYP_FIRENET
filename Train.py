@@ -6,22 +6,71 @@ from __future__ import print_function
 import tensorflow as tf
 
 from . import FireNet
+import os
 
 tf.logging.set_verbosity(v = tf.logging.INFO)
 
-LIST_OF_LABELS = "fire,nonfire".split(',')
+LIST_OF_LABELS = "fire,normal".split(',')
 HEIGHT = 299
 WIDTH = 299
 NUM_CHANNELS = 3
 NCLASSES = 2
 
 
+def read_and_preprocess_with_augment(image_bytes, label=None):
+    return read_and_preprocess(image_bytes, label, augment=True)
+
+
+def read_and_preprocess(image_bytes, label=None, augment=False):
+    # Decode the image, end up with pixel values that are in the -1, 1 range
+    image = tf.image.decode_jpeg(contents=image_bytes, channels=NUM_CHANNELS)
+    image = tf.image.convert_image_dtype(image=image, dtype=tf.float32)  # 0-1
+    image = tf.expand_dims(input=image, axis=0)  # resize_bilinear needs batches
+
+    if augment:
+        image = tf.image.resize_bilinear(images=image, size=[HEIGHT + 10, WIDTH + 10], align_corners=False)
+        image = tf.squeeze(input=image, axis=0)  # remove batch dimension
+        image = tf.random_crop(value=image, size=[HEIGHT, WIDTH, NUM_CHANNELS])
+        image = tf.image.random_flip_left_right(image=image)
+        image = tf.image.random_brightness(image=image, max_delta=63.0 / 255.0)
+        image = tf.image.random_contrast(image=image, lower=0.2, upper=1.8)
+    else:
+        image = tf.image.resize_bilinear(images=image, size=[HEIGHT, WIDTH], align_corners=False)
+        image = tf.squeeze(input=image, axis=0)  # remove batch dimension
+
+    # Pixel values are in range [0,1], convert to [-1,1]
+    image = tf.subtract(x=image, y=0.5)
+    image = tf.multiply(x=image, y=2.0)
+    return {"image": image}, label
+
+
+def make_input_fn(csv_of_filenames, batch_size, mode, augment=False):
+    def _input_fn():
+        def process_path(file_path):
+            label = tf.string.split(file_path, os.sep)[-2]
+            return tf.io.read_file(file_path), label
+
+
+        # Create tf.data.dataset from filename
+        dataset = tf.data.Dataset.list_files(str(flame_root/'*/*')).map(map_func=process_path())
+
+        if augment:
+            dataset = dataset.map(map_func=read_and_preprocess_with_augment)
+        else:
+            dataset = dataset.map(map_func=read_and_preprocess)
+
+        if mode == tf.estimator.ModeKeys.TRAIN:
+            num_epochs = None  # indefinitely
+            dataset = dataset.shuffle(buffer_size=10 * batch_size)
+        else:
+            num_epochs = 1  # end-of-input after this
+
+        dataset = dataset.repeat(count=num_epochs).batch(batch_size=batch_size)
+        return dataset.make_one_shot_iterator().get_next()
+
+    return _input_fn
+
 def image_classifier(features, labels, mode, params):
-    model_functions = {
-        "linear": linear_model,
-        "dnn": dnn_model,
-        "dnn_dropout": dnn_dropout_model,
-        "cnn": cnn_model}
     model_function = FireNet.cnn_model
     ylogits, nclasses = model_function(features["image"], mode, params)
 
