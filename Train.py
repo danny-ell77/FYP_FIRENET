@@ -3,7 +3,7 @@ from __future__ import division
 from __future__ import print_function
 from . import FireNet
 import os
-import tensorflow as tf
+import TensorFlow as tf
 AUTOTUNE = tf.data.experimantal.AUTOTUNE
 tf.logging.set_verbosity(v=tf.logging.INFO)
 
@@ -11,6 +11,7 @@ HEIGHT = 256
 WIDTH = 256
 NUM_CHANNELS = 3
 NCLASSES = 2
+EVAL_INTERVAL = 300
 
 
 def read_and_preprocess_with_augment(filenames, label):
@@ -25,7 +26,7 @@ def read_and_preprocess(filenames, augment=False):
     image = tf.io.read_file(filenames)
     image = tf.image.decode_jpeg(contents=image, channels=NUM_CHANNELS)
     image = tf.image.convert_image_dtype(image=image, dtype=tf.float32)  # 0-1
-    image = tf.resize(image, [256,256])  # resize_bilinear needs batches
+    image = tf.resize(image, [256, 256])  # resize_bilinear needs batches
 
     if augment:
         image = tf.image.resize_bilinear(images=image, size=[HEIGHT + 10, WIDTH + 10], align_corners=False)
@@ -52,11 +53,11 @@ def serving_input_fn():
     return tf.estimator.export.ServingInputReceiver(features=image, receiver_tensors=feature_placeholders)
 
 
-def make_input_fn(batch_size, mode, augment=False):
+def make_input_fn(filenames, batch_size, mode, augment=False):
 
     def _input_fn():
         # Create tf.data.Dataset from filename
-        dataset = tf.data.Dataset.list_files(str(flame_root/'*/*'))
+        dataset = tf.data.Dataset.list_files(str(filenames/'*/*'))
 
         if augment:
             dataset = dataset.map(map_func=read_and_preprocess_with_augment)
@@ -84,17 +85,16 @@ def image_classifier(features, labels, mode, params):
 
     probabilities = tf.nn.softmax(logits=ylogits)
     class_int = tf.cast(x=tf.argmax(input=ylogits, axis=1), dtype=tf.uint8)
-    class_str = tf.gather(params=LIST_OF_LABELS, indices=tf.cast(x=class_int, dtype=tf.int32))
+    class_str = tf.gather(params=labels, indices=tf.cast(x=class_int, dtype=tf.int32))
 
     if mode == tf.estimator.ModeKeys.TRAIN or mode == tf.estimator.ModeKeys.EVAL:
         # Convert string label to int
         labels_table = tf.contrib.lookup.index_table_from_tensor(
-            mapping=tf.constant(value=LIST_OF_LABELS, dtype=tf.string))
+            mapping=tf.constant(value=labels, dtype=tf.string))
         labels = labels_table.lookup(keys=labels)
-
-        loss = tf.reduce_mean(input_tensor=tf.nn.softmax_cross_entropy_with_logits_v2(logits=ylogits,
-                                                                                      labels=tf.one_hot(indices=labels,
-                                                                                                        depth=NCLASSES)))
+        labels = tf.one_hot(indices=labels,
+                            depth=NCLASSES)
+        loss = tf.reduce_mean(input_tensor=tf.nn.softmax_cross_entropy_with_logits_v2(logits=ylogits, labels=labels))
 
         if mode == tf.estimator.ModeKeys.TRAIN:
             # This is needed for batch normalization, but has no effect otherwise
@@ -132,7 +132,7 @@ def image_classifier(features, labels, mode, params):
 def train_and_evaluate(output_dir, hparams):
     tf.summary.FileWriterCache.clear()  # ensure filewriter cache is clear for TensorBoard events file
 
-    EVAL_INTERVAL = 300  # every 5 minutes
+    # every 5 minutes
 
     # Instantiate base estimator class for custom model function
     estimator = tf.estimator.Estimator(

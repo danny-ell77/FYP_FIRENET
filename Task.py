@@ -34,12 +34,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "--train_data_path",
         help="location of train file containing eval URLs",
-        default="gs://cloud-ml-data/img/flower_photos/train_set.csv"
+        default="**to be determined"
     )
     parser.add_argument(
         "--eval_data_path",
         help="location of eval file containing img URLs",
-        default="gs://cloud-ml-data/img/flower_photos/eval_set.csv"
+        default="**to be determined"
     )
     # build list of model fn"s for help message
 
