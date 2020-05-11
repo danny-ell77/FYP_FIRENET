@@ -70,14 +70,27 @@ if __name__ == "__main__":
         default=5
     )
     parser.add_argument(
+        "--ksize3",
+        help="kernel size of third layer for CNN",
+        type=int,
+        default=5
+    )
+    parser.add_argument(
         "--nfil1",
         help="number of filters in first layer for CNN",
         type=int,
         default=10
     )
+
     parser.add_argument(
         "--nfil2",
         help="number of filters in second layer for CNN",
+        type=int,
+        default=20
+    )
+    parser.add_argument(
+        "--nfil3",
+        help="number of filters in third layer for CNN",
         type=int,
         default=20
     )
@@ -99,6 +112,7 @@ if __name__ == "__main__":
     hparams = args.__dict__
 
     output_dir = hparams.pop("output_dir")
+
     # Append trial_id to path for hptuning
     output_dir = os.path.join(
         output_dir,

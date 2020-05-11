@@ -1,31 +1,31 @@
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-
-import tensorflow as tf
-
 from . import FireNet
 import os
+import tensorflow as tf
+AUTOTUNE = tf.data.experimantal.AUTOTUNE
+tf.logging.set_verbosity(v=tf.logging.INFO)
 
-tf.logging.set_verbosity(v = tf.logging.INFO)
-
-LIST_OF_LABELS = "fire,normal".split(',')
-HEIGHT = 299
-WIDTH = 299
+HEIGHT = 256
+WIDTH = 256
 NUM_CHANNELS = 3
 NCLASSES = 2
 
 
-def read_and_preprocess_with_augment(image_bytes, label=None):
-    return read_and_preprocess(image_bytes, label, augment=True)
+def read_and_preprocess_with_augment(filenames, label):
+    return read_and_preprocess(filenames, label, augment=True)
 
 
-def read_and_preprocess(image_bytes, label=None, augment=False):
-    # Decode the image, end up with pixel values that are in the -1, 1 range
-    image = tf.image.decode_jpeg(contents=image_bytes, channels=NUM_CHANNELS)
+def read_and_preprocess(filenames, augment=False):
+    parts = tf.strings.splits(filenames, os.sep)
+    label = parts[-2]
+
+    #  Decode the image, end up with pixel values that are in the -1, 1 range
+    image = tf.io.read_file(filenames)
+    image = tf.image.decode_jpeg(contents=image, channels=NUM_CHANNELS)
     image = tf.image.convert_image_dtype(image=image, dtype=tf.float32)  # 0-1
-    image = tf.expand_dims(input=image, axis=0)  # resize_bilinear needs batches
+    image = tf.resize(image, [256,256])  # resize_bilinear needs batches
 
     if augment:
         image = tf.image.resize_bilinear(images=image, size=[HEIGHT + 10, WIDTH + 10], align_corners=False)
@@ -44,15 +44,19 @@ def read_and_preprocess(image_bytes, label=None, augment=False):
     return {"image": image}, label
 
 
-def make_input_fn(csv_of_filenames, batch_size, mode, augment=False):
+def serving_input_fn():
+    # Note: only handles one image at a time
+    feature_placeholders = {"image_bytes": tf.placeholder(dtype=tf.string, shape=[])}
+    image, _ = read_and_preprocess(tf.squeeze(input=feature_placeholders["image_bytes"]))
+    image["image"] = tf.expand_dims(image["image"], axis=0)
+    return tf.estimator.export.ServingInputReceiver(features=image, receiver_tensors=feature_placeholders)
+
+
+def make_input_fn(batch_size, mode, augment=False):
+
     def _input_fn():
-        def process_path(file_path):
-            label = tf.string.split(file_path, os.sep)[-2]
-            return tf.io.read_file(file_path), label
-
-
-        # Create tf.data.dataset from filename
-        dataset = tf.data.Dataset.list_files(str(flame_root/'*/*')).map(map_func=process_path())
+        # Create tf.data.Dataset from filename
+        dataset = tf.data.Dataset.list_files(str(flame_root/'*/*'))
 
         if augment:
             dataset = dataset.map(map_func=read_and_preprocess_with_augment)
@@ -61,14 +65,18 @@ def make_input_fn(csv_of_filenames, batch_size, mode, augment=False):
 
         if mode == tf.estimator.ModeKeys.TRAIN:
             num_epochs = None  # indefinitely
-            dataset = dataset.shuffle(buffer_size=10 * batch_size)
         else:
             num_epochs = 1  # end-of-input after this
 
-        dataset = dataset.repeat(count=num_epochs).batch(batch_size=batch_size)
+        dataset = dataset.repeat(count=num_epochs)\
+                         .batch(batch_size=batch_size)\
+                         .shuffle(buffer_size=10 * batch_size)\
+                         .prefetch(buffer_size=AUTOTUNE)
+
         return dataset.make_one_shot_iterator().get_next()
 
     return _input_fn
+
 
 def image_classifier(features, labels, mode, params):
     model_function = FireNet.cnn_model
