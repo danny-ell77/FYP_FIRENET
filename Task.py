@@ -21,6 +21,12 @@ if __name__ == "__main__":
         default=0.01
     )
     parser.add_argument(
+        "--optimizer",
+        help="optimizing Algorithm for the Loss",
+        type=str,
+        default="Adam"
+    )
+    parser.add_argument(
         "--train_steps",
         help="Steps to run the training job for. A step is one batch-size",
         type=int,

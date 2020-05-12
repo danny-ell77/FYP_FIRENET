@@ -11,7 +11,6 @@ HEIGHT = 256
 WIDTH = 256
 NUM_CHANNELS = 3
 NCLASSES = 2
-EVAL_INTERVAL = 300
 
 
 def read_and_preprocess_with_augment(filenames, label):
@@ -104,7 +103,7 @@ def image_classifier(features, labels, mode, params):
                     loss=loss,
                     global_step=tf.train.get_global_step(),
                     learning_rate=params["learning_rate"],
-                    optimizer="Adam")
+                    optimizer=params["optimizer"])
             eval_metric_ops = None
         else:
             train_op = None
@@ -132,7 +131,7 @@ def image_classifier(features, labels, mode, params):
 def train_and_evaluate(output_dir, hparams):
     tf.summary.FileWriterCache.clear()  # ensure filewriter cache is clear for TensorBoard events file
 
-    # every 5 minutes
+    EVAL_INTERVAL = 300# every 5 minutes
 
     # Instantiate base estimator class for custom model function
     estimator = tf.estimator.Estimator(

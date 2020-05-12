@@ -3,7 +3,7 @@ import TensorFlow as tf
 HEIGHT = 299
 WIDTH = 299
 NUM_CHANNELS = 3
-NCLASSES = 5
+NCLASSES = 2
 
 
 def cnn_model(img, mode, hparams):
