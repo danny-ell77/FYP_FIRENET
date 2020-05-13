@@ -11,6 +11,8 @@ HEIGHT = 256
 WIDTH = 256
 NUM_CHANNELS = 3
 NCLASSES = 2
+LIST_OF_LABELS = "FIRE,NORMAL".split(',')
+
 
 
 def read_and_preprocess_with_augment(filenames, label):
@@ -84,16 +86,14 @@ def image_classifier(features, labels, mode, params):
 
     probabilities = tf.nn.softmax(logits=ylogits)
     class_int = tf.cast(x=tf.argmax(input=ylogits, axis=1), dtype=tf.uint8)
-    class_str = tf.gather(params=labels, indices=tf.cast(x=class_int, dtype=tf.int32))
+    class_str = tf.gather(params=LIST_OF_LABELS, indices=tf.cast(x=class_int, dtype=tf.int32))
 
     if mode == tf.estimator.ModeKeys.TRAIN or mode == tf.estimator.ModeKeys.EVAL:
         # Convert string label to int
         labels_table = tf.contrib.lookup.index_table_from_tensor(
-            mapping=tf.constant(value=labels, dtype=tf.string))
+            mapping=tf.constant(value=LIST_OF_LABELS, dtype=tf.string))
         labels = labels_table.lookup(keys=labels)
-        labels = tf.one_hot(indices=labels,
-                            depth=NCLASSES)
-        loss = tf.reduce_mean(input_tensor=tf.nn.softmax_cross_entropy_with_logits_v2(logits=ylogits, labels=labels))
+        loss = tf.reduce_mean(input_tensor=tf.nn.softmax_cross_entropy_with_logits_v2(logits=ylogits, labels=tf.one_hot(indices=labels,depth=NCLASSES)))
 
         if mode == tf.estimator.ModeKeys.TRAIN:
             # This is needed for batch normalization, but has no effect otherwise
@@ -131,7 +131,7 @@ def image_classifier(features, labels, mode, params):
 def train_and_evaluate(output_dir, hparams):
     tf.summary.FileWriterCache.clear()  # ensure filewriter cache is clear for TensorBoard events file
 
-    EVAL_INTERVAL = 300# every 5 minutes
+    EVAL_INTERVAL = 300  # every 5 minutes
 
     # Instantiate base estimator class for custom model function
     estimator = tf.estimator.Estimator(
