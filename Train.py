@@ -4,6 +4,7 @@ from __future__ import print_function
 from . import FireNet
 import os
 import TensorFlow as tf
+import numpy as np
 AUTOTUNE = tf.data.experimantal.AUTOTUNE
 tf.logging.set_verbosity(v=tf.logging.INFO)
 
@@ -12,7 +13,6 @@ WIDTH = 256
 NUM_CHANNELS = 3
 NCLASSES = 2
 LIST_OF_LABELS = "FIRE,NORMAL".split(',')
-
 
 
 def read_and_preprocess_with_augment(filenames, label):

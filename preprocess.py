@@ -1,14 +1,26 @@
 import tensorflow as tf
 import numpy as np
+import os
 from Train import make_input_fn
 
-
+AUTOTUNE = tf.data.experimantal.AUTOTUNE
 GCS_PATTERN = 'gs://fire_dataset/*/*.jpg'
 GCS_OUTPUT = 'gs://fire_dataset/tfrecords-jpeg-192x192-2/fire'  # prefix for output file names
 SHARDS = 16
 TARGET_SIZE = [192, 192]
 CLASSES = [b'fire', b'normal']  # do not change, maps to the labels in the data (folder names)
 
+
+def _input_fn(filenames, batch_size):
+    # Create tf.data.Dataset from filename
+    dataset = tf.data.Dataset.list_files(str(filenames / '*/*'))
+    parts = tf.strings.splits(filenames, os.sep)
+    label = parts[-2]
+
+    dataset = dataset.batch(batch_size=batch_size) \
+                     .shuffle(buffer_size=10 * batch_size) \
+                     .prefetch(buffer_size=AUTOTUNE)
+    return dataset, label
 
 
 def _bytestring_feature(list_of_bytestrings):
@@ -39,7 +51,7 @@ def to_tfrecord(tfrec_filewriter, img_bytes, label, height, width):
 
 
 print("Writing TFRecords")
-for shard, (image, label, height, width) in enumerate(dataset):
+for shard, (image, label, height, width) in enumerate(_input_fn()): #find out where the dataset is coming from in tutorial
     # batch size used as shard size here
     shard_size = image.numpy().shape[0]
 # good practice to have the number of records in the filename
