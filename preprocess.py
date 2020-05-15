@@ -1,30 +1,61 @@
 import tensorflow as tf
 import numpy as np
-import os
-from Train import make_input_fn
 
-AUTOTUNE = tf.data.experimantal.AUTOTUNE
+
+AUTO = tf.data.experimantal.AUTOTUNE
 GCS_PATTERN = 'gs://fire_dataset/*/*.jpg'
-GCS_OUTPUT = 'gs://fire_dataset/tfrecords-jpeg-192x192-2/fire'  # prefix for output file names
+GCS_OUTPUT = 'gs://fire_dataset/tfrecords-jpeg-256x256-2/fire'  # prefix for output file names
 SHARDS = 16
-TARGET_SIZE = [192, 192]
+TARGET_SIZE = [256, 256]
 CLASSES = [b'fire', b'normal']  # do not change, maps to the labels in the data (folder names)
 
 
-def _input_fn(filenames, batch_size):
-    # Create tf.data.Dataset from filename
-    dataset = tf.data.Dataset.list_files(str(filenames / '*/*'))
-    parts = tf.strings.splits(filenames, os.sep)
-    label = parts[-2]
+nb_images = len(tf.io.gfile.glob(GCS_PATTERN))
+shard_size = math.ceil(1.0 * nb_images / SHARDS)
+print("Pattern matches {} images which will be rewritten as {} .tfrec files containing {} images each.".format(nb_images, SHARDS, shard_size))
 
-    dataset = dataset.batch(batch_size=batch_size) \
-                     .shuffle(buffer_size=10 * batch_size) \
-                     .prefetch(buffer_size=AUTOTUNE)
-    return dataset, label
+
+def read_jpeg_and_label(filename):
+   bits = tf.io.read_file(filename)   # parse flower name from containing directory
+   image = tf.decode_jpeg(bits)
+   label = tf.strings.split(tf.expand_dims(filename, axis=-1), sep='/')
+   label = label.values[-2]
+   return image, label
+
+
+def resize_and_crop_image(image, label):
+    w = tf.shape(image)[0]    # Resize and crop using "fill" algorithm:
+    h = tf.shape(image)[1]  # always make sure the resulting image
+    tw = TARGET_SIZE[1]  # is cut out from the source image so that
+    th = TARGET_SIZE[0]   # it fills the TARGET_SIZE entirely with no
+    resize_crit = (w * th) / (h * tw)  # black bars and a preserved aspect ratio.
+    image = tf.cond(resize_crit < 1,
+                    lambda: tf.image.resize(image, [w * tw / w, h * tw / w]),  # if true
+                    lambda: tf.image.resize(image, [w * th / h, h * th / h])  # if false
+                    )
+    nw = tf.shape(image)[0]
+    nh = tf.shape(image)[1]
+    image = tf.image.crop_to_bounding_box(image, (nw - tw) // 2, (nh - th) // 2, tw, th)
+    return image, label
+
+
+def recompress_image(image, label):
+    height = tf.shape(image)[0]
+    width = tf.shape(image)[1]
+    image = tf.cast(image, tf.uint8)
+    image = tf.image.encode_jpeg(image, optimize_size=True, chroma_downsampling=False)
+    return image, label, height, width
+
+
+filenames = tf.data.Dataset.list_files(GCS_PATTERN, seed=35155)  # This also shuffles the images
+dataset1 = filenames.map(read_jpeg_and_label, num_parallel_calls=AUTO)\
+                    .map(resize_and_crop_image, num_parallel_calls=AUTO)\
+                    .map(recompress_image, num_parallel_calls=AUTO)
 
 
 def _bytestring_feature(list_of_bytestrings):
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=list_of_bytestrings))
+
 
 def _int_feature(list_of_ints):  # int64
     return tf.train.Feature(int64_list=tf.train.Int64List(value=list_of_ints))
@@ -51,7 +82,7 @@ def to_tfrecord(tfrec_filewriter, img_bytes, label, height, width):
 
 
 print("Writing TFRecords")
-for shard, (image, label, height, width) in enumerate(_input_fn()): #find out where the dataset is coming from in tutorial
+for shard, (image, label, height, width) in enumerate(dataset1): #find out where the dataset is coming from in tutorial
     # batch size used as shard size here
     shard_size = image.numpy().shape[0]
 # good practice to have the number of records in the filename
