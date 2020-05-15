@@ -1,9 +1,9 @@
 import tensorflow as tf
 import numpy as np
 AUTO = tf.data.experimantal.AUTOTUNE
-GCS_OUTPUT = 'gs://qwiklabs-gcp-02-c7f1ded04a7e/fire_dataset/tfrecords-jpeg-192x192-2/fire'  # prefix for output file names
+GCS_OUTPUT = 'gs://fire_dataset/tfrecords-jpeg-192x192-2/fire'  # prefix for output file names
 
-TARGET_SIZE = [256, 256]
+TARGET_SIZE = [192, 192]
 
 
 def read_tfrecord(example):
