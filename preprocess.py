@@ -5,13 +5,13 @@ import numpy as np
 AUTO = tf.data.experimantal.AUTOTUNE
 GCS_PATTERN = 'gs://fire_dataset/*/*.jpg'
 GCS_OUTPUT = 'gs://fire_dataset/tfrecords-jpeg-256x256-2/fire'  # prefix for output file names
-SHARDS = 16
+SHARDS = # To be determined
 TARGET_SIZE = [256, 256]
 CLASSES = [b'fire', b'normal']  # do not change, maps to the labels in the data (folder names)
 
 
 nb_images = len(tf.io.gfile.glob(GCS_PATTERN))
-shard_size = math.ceil(1.0 * nb_images / SHARDS)
+shard_size = math.ceil(nb_images / SHARDS)
 print("Pattern matches {} images which will be rewritten as {} .tfrec files containing {} images each.".format(nb_images, SHARDS, shard_size))
 
 
@@ -66,8 +66,8 @@ def _float_feature(list_of_floats):  # float32
 
 
 def to_tfrecord(tfrec_filewriter, img_bytes, label, height, width):
-    class_num = np.argmax(np.array(CLASSES) == label)  # 'roses' => 2 (order defined in CLASSES)
-    one_hot_class = np.eye(len(CLASSES))[class_num]  # [0, 0, 1, 0, 0] for class #2, roses
+    class_num = np.argmax(np.array(CLASSES) == label)  # fire => 0(order defined in CLASSES)
+    one_hot_class = np.eye(len(CLASSES))[class_num]  # [1, 0] for class #1, fire
 
     feature = {
         "image": _bytestring_feature([img_bytes]),  # one image in the list
@@ -82,9 +82,9 @@ def to_tfrecord(tfrec_filewriter, img_bytes, label, height, width):
 
 
 print("Writing TFRecords")
-for shard, (image, label, height, width) in enumerate(dataset1): #find out where the dataset is coming from in tutorial
+for shard, (image, label, height, width) in enumerate(dataset1): # loops through each line in the dataset 
     # batch size used as shard size here
-    shard_size = image.numpy().shape[0]
+    shard_size = image.numpy().shape[0] # batch size not specified
 # good practice to have the number of records in the filename
     filename = GCS_OUTPUT + "{:02d}-{}.tfrec".format(shard, shard_size)
 
