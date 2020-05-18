@@ -3,11 +3,11 @@ import numpy as np
 
 
 AUTO = tf.data.experimental.AUTOTUNE
-GCS_PATTERN = 'gs://qwiklabs-gcp-02-c7f1ded04a7e/fire_dataset/*/*.jpg'
-GCS_OUTPUT = 'gs://qwiklabs-gcp-02-c7f1ded04a7e/fire_dataset/tfrecords-jpeg-256x256-2/fire'  # prefix for output file names
+GCS_PATTERN = 'gs://cloudfire_lyrical-edition-273206/fire_dataset/*/*.jpg'
+GCS_OUTPUT = 'gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-9/'
 # SHARDS = # To be determined
 TARGET_SIZE = [256, 256]
-CLASSES = [b'fire', b'normal']  # do not change, maps to the labels in the data (folder names)
+CLASSES = [b'Fire', b'Normal']  # do not change, maps to the labels in the data (folder names)
 
 
 nb_images = len(tf.io.gfile.glob(GCS_PATTERN))
@@ -16,11 +16,11 @@ nb_images = len(tf.io.gfile.glob(GCS_PATTERN))
 
 
 def read_jpeg_and_label(filename):
-   bits = tf.io.read_file(filename)   # parse  from containing directory
-   image = tf.image.decode_jpeg(bits)
-   label = tf.strings.split(tf.expand_dims(filename, axis=-1), sep='/')
-   label = label.values[-2]
-   return image, label
+    bits = tf.io.read_file(filename)   # parse  from containing directory
+    image = tf.image.decode_jpeg(bits)
+    label = tf.strings.split(tf.expand_dims(filename, axis=-1), sep='/')
+    label = label.values[-2]
+    return image, label
 
 
 def resize_and_crop_image(image, label):
@@ -51,7 +51,7 @@ filenames = tf.data.Dataset.list_files(GCS_PATTERN, seed=35155)  # This also shu
 dataset1 = filenames.map(read_jpeg_and_label, num_parallel_calls=AUTO)\
                     .map(resize_and_crop_image, num_parallel_calls=AUTO)\
                     .map(recompress_image, num_parallel_calls=AUTO)\
-                    .batch(batch_size=20)
+                    .batch(batch_size=50)
 
 
 def _bytestring_feature(list_of_bytestrings):
@@ -87,7 +87,7 @@ for shard, (image, label, height, width) in enumerate(dataset1): # loops through
     # batch size used as shard size here
     shard_size = image.numpy().shape[0] # batch size not specified
 # good practice to have the number of records in the filename
-    filename = GCS_OUTPUT + "{:02d}-{}.tfrec".format(shard, shard_size)
+    filename = GCS_OUTPUT + "shard_{:02d}-{}.tfrec".format(shard, shard_size)
 
     with tf.io.TFRecordWriter(filename) as out_file:
         for i in range(shard_size):
