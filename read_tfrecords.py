@@ -37,13 +37,12 @@ def read_tfrecord(example):
 # read from TFRecords. For optimal performance, read from multiple
 # TFRecord files at once and set the option experimental_deterministic = False
 # to allow order-altering optimizations.
+def load_dataset():
+    option_no_order = tf.data.Options()
+    option_no_order.experimental_deterministic = False
 
-option_no_order = tf.data.Options()
-option_no_order.experimental_deterministic = False
-
-filenames = tf.io.gfile.glob(GCS_OUTPUT + "*.tfrec")
-dataset4 = tf.data.TFRecordDataset(filenames, num_parallel_reads=AUTO)
-dataset4 = dataset4.with_options(option_no_order)
-dataset4 = dataset4.map(read_tfrecord, num_parallel_calls=AUTO)
-for image, class_num, label, height, width, one_hot_class in enumerate(dataset1):
-    print("Image shape {}, {}x{} px, class={} ({:>10}, {})".format(image.numpy().shape, width, height, class_num,label.numpy().decode('utf8'),one_hot_class))
+    filenames = tf.io.gfile.glob(GCS_OUTPUT + "*.tfrec")
+    dataset4 = tf.data.TFRecordDataset(filenames, num_parallel_reads=AUTO)
+    dataset4 = dataset4.with_options(option_no_order)
+    dataset4 = dataset4.map(read_tfrecord, num_parallel_calls=AUTO) 
+    return dataset4
