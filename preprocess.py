@@ -7,10 +7,10 @@ HEIGHT = 180
 WIDTH = 180
 NUM_CHANNELS = 3
 AUTO = tf.data.experimental.AUTOTUNE
-GCS_PATTERN = 'gs://cloudfire_lyrical-edition-273206/fire_dataset/block2/*/*.jpg'
-GCS_OUTPUT = 'gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-augmented_dataset-9/'
+GCS_PATTERN = 'gs://cloudfire_lyrical-edition-273206/fire_dataset/block1/*/*.jpg'
+GCS_OUTPUT = 'gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/'
 # SHARDS = # To be determined
-TARGET_SIZE = [256, 256]
+TARGET_SIZE = [224, 224]
 CLASSES = [b'Fire', b'Normal']  # do not change, maps to the labels in the data (folder names)
 
 
@@ -25,16 +25,19 @@ def read_jpeg_and_label(filename, augment=False):
     image = tf.image.decode_jpeg(bits)
      #image = tf.image.convert_image_dtype(image, tf.float32)
     label = tf.strings.split(tf.expand_dims(filename, axis=-1), sep='/')
-    label = label.values[-2]         
+    label = label.values[-2]
+    return image, label
+    
+    '''
     #Augment the data
     image = tf.image.random_crop(value=image, size=[HEIGHT, WIDTH, NUM_CHANNELS])
     image = tf.image.random_flip_left_right(image=image)
     image = tf.image.random_brightness(image=image, max_delta=63.0 / 255.0)
     image = tf.image.random_contrast(image=image, lower=0.2, upper=1.8)
     image = tf.image.random_flip_up_down(image=image)    
-    return image, label
-   
-   
+    
+    '''
+    
 def resize_and_crop_image(image, label):
     w = tf.shape(image)[0]    # Resize and crop using "fill" algorithm:
     h = tf.shape(image)[1]  # always make sure the resulting image
