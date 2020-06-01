@@ -2,7 +2,7 @@ import argparse
 import json
 import os
 
-from . import model
+from . import train
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -109,12 +109,12 @@ if __name__ == "__main__":
         "--batch_norm",
         help="if specified, do batch_norm for CNN",
         dest="batch_norm",
-        action="store_true"
+        action="store_false"
     )
     parser.set_defaults(batch_norm=False)
 
     args = parser.parse_args()
-    hparams = args.__dict__
+    hparams = args.__dict__ # change 'hparams' to 'args' its much intuitive this way 
 
     output_dir = hparams.pop("output_dir")
 
@@ -127,4 +127,4 @@ if __name__ == "__main__":
     )
 
     # Run the training job
-    model.train_and_evaluate(output_dir, hparams)
+    train.train_and_evaluate(output_dir, hparams)

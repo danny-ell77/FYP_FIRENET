@@ -23,6 +23,7 @@ def read_tfrecord(example):
     # VarLenFeature fields require additional sparse_to_dense decoding
 
     image = tf.image.decode_jpeg(example['image'], channels=3)
+    image = tf.image.convert_image_dtype(image, tf.float32)
     #image = tf.Reshape(image, [TARGET_SIZE])  # for cloud  define the variable with '*'!! e.g. [*TARGET_SIZE, 3]
 
     class_num = example['class']
@@ -31,7 +32,7 @@ def read_tfrecord(example):
     height = example['size'][0]
     width = example['size'][1]
     one_hot_class = tf.sparse.to_dense(example['one_hot_class'])
-    return  {"image":image}, label
+    return  image, one_hot_class
 
 
 # read from TFRecords. For optimal performance, read from multiple
@@ -57,7 +58,8 @@ def input_fn(file_paths, batch_size, mode):
                             .repeat(count=num_epochs)\
                             .batch(batch_size=batch_size)  #add prefectch later          
         dataset4 = tf.compat.v1.data.make_one_shot_iterator(dataset4) 
-        return dataset4.get_next()
+        image_batch, label_batch = dataset4.get_next()
+        return {'image': image_batch}, label_batch
     
      return load_dataset    
 
