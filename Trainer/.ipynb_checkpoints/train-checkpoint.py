@@ -10,36 +10,36 @@ AUTO = tf.data.experimental.AUTOTUNE
 HEIGHT = 224
 WIDTH = 224
 NUM_CHANNELS = 3
-tf.compat.v1.logging.set_verbosity(v=tf.compat.v1.logging.INFO)
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
 
 CLASSES = [b'Fire', b'Normal']  # do not change, maps to the labels in the data (folder names)
 
+def serve_preprocess(image_bytes):
+    # Decode the image, end up with pixel values that are in the 0, 1 range
+    image = tf.io.decode_jpeg(contents = image_bytes, channels = NUM_CHANNELS)
+    image = tf.image.convert_image_dtype(image = image, dtype = tf.float32) # 0-1
+    image = tf.expand_dims(input = image, axis = 0) # resize_bilinear needs batches
+    image = tf.compat.v1.image.resize_bilinear(images = image, size = [HEIGHT, WIDTH], align_corners = False)
+    image = tf.squeeze(input = image, axis = 0) # remove batch dimension
+    return {"image": image}
+
 
 def serving_input_fn():
-    # Note: only handles one image at a time
-    feature_placeholders = {"image_bytes": tf.compat.v1.placeholder(dtype=tf.float32, shape=[HEIGHT, WIDTH, NUM_CHANNELS])}
-    features = {"image": tf.expand_dims(input=feature_placeholders["image_bytes"], axis=0)}
-    return tf.estimator.export.ServingInputReceiver(features=features, receiver_tensors=feature_placeholders)
-
-'''
-def model_fn(features):
-    model = FireEye.build(features["image"])
-    
-    model.compile(loss = 'binary_crossentropy',
-                    optimizer = 'adam', 
-                    metrics = ['binary_accuracy', 'binary_crossentropy']) 
-    return model
-'''
+    # Note: only handles one image at a time 
+    feature_placeholders = {"image_bytes": tf.compat.v1.placeholder(dtype = tf.string, shape = [])}
+    image = serve_preprocess(tf.squeeze(input = feature_placeholders["image_bytes"]))
+    features = {"input_1": tf.expand_dims(image["image"], axis = 0)}
+    return tf.estimator.export.ServingInputReceiver(features = features, receiver_tensors = feature_placeholders)
 
 def train_and_evaluate(output_dir, hparams):
     
-    EVAL_INTERVAL = 60
+    EVAL_INTERVAL = 30
     
     model = FireEye.build()
     
     model.compile(loss = 'binary_crossentropy',
-                    optimizer = 'adam', 
-                    metrics = ['binary_accuracy', 'binary_crossentropy']) 
+                    optimizer = 'Adam', 
+                    metrics = [tf.keras.metrics.CategoricalAccuracy()]) 
     
     keras_estimator = tf.keras.estimator.model_to_estimator(
                                 keras_model = model,

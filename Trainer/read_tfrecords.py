@@ -59,7 +59,7 @@ def input_fn(file_paths, batch_size, mode):
                             .batch(batch_size=batch_size)  #add prefectch later          
         dataset4 = tf.compat.v1.data.make_one_shot_iterator(dataset4) 
         image_batch, label_batch = dataset4.get_next()
-        return {'image': image_batch}, label_batch
+        return image_batch, label_batch
     
      return load_dataset    
 

@@ -1,44 +1,37 @@
 # import the necessary packages
 import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import BatchNormalization
-from tensorflow.keras.layers import SeparableConv2D
-from tensorflow.keras.layers import MaxPooling2D
-from tensorflow.keras.layers import Activation
-from tensorflow.keras.layers import Flatten
-from tensorflow.keras.layers import Dropout
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.layers import InputLayer
-
 NCLASSES = 2
+IMAGE_SIZE = [192, 192]
 
 class FireEye:
-	def build():
-		# initialize the model along with the input shape to be
-		# "channels last" and the channels dimension itself
-		inputShape = (224, 224, 3)
-		chanDim = -1
-		model = Sequential([
-		# model.add(InputLayer(input_tensor = input_tensor, name = "image"))
-		# CONV => RELU => POOL
-		tf.keras.layers.SeparableConv2D(16, (7, 7), padding="same", activation='relu', input_shape=inputShape),
-		tf.keras.layers.BatchNormalization(axis=chanDim),
-		tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
-        # CONV => RELU => POOL
-		tf.keras.layers.SeparableConv2D(32, (3, 3), padding="same", activation='relu' ),
-		tf.keras.layers.BatchNormalization(axis=chanDim),
-		tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
-		# (CONV => RELU) * 2 => POOL
-		tf.keras.layers.SeparableConv2D(64, (3, 3), padding="same", activation='relu'),
-		tf.keras.layers.BatchNormalization(axis=chanDim),
-		tf.keras.layers.SeparableConv2D(64, (3, 3), padding="same", activation='relu'),
-		tf.keras.layers.BatchNormalization(axis=chanDim),
-		tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
-		# first set of FC => RELU layers
-		#tf.keras.layers.Flatten(),
-		tf.keras.layers.GlobalAveragePooling2D(),
-		# softmax classifier
-		tf.keras.layers.Dense(NCLASSES, activation='softmax')
-        ])
-		# return the constructed network architecture
-		return model
+    def build():
+        bnmomemtum=0.9
+        def fire(x, squeeze, expand):
+            y  = tf.keras.layers.Conv2D(filters=squeeze, kernel_size=1, activation='relu', padding='same')(x)
+            y = tf.keras.layers.BatchNormalization(momentum=bnmomemtum)(y)
+            y1 = tf.keras.layers.Conv2D(filters=expand//2, kernel_size=1, activation='relu', padding='same')(y)
+            y1 = tf.keras.layers.BatchNormalization(momentum=bnmomemtum)(y1)
+            y3 = tf.keras.layers.Conv2D(filters=expand//2, kernel_size=3, activation='relu', padding='same')(y)
+            y3 = tf.keras.layers.BatchNormalization(momentum=bnmomemtum)(y3)
+            return tf.keras.layers.concatenate([y1, y3])
+
+        def fire_module(squeeze, expand):
+            return lambda x: fire(x, squeeze, expand)
+
+        x = tf.keras.layers.Input(shape=[*IMAGE_SIZE, 3]) # input is 192x192 pixels RGB
+
+        y = tf.keras.layers.Conv2D(kernel_size=3, filters=32, padding='same', use_bias=True, activation='relu')(x)
+        y = tf.keras.layers.BatchNormalization(momentum=bnmomemtum)(y)
+        y = fire_module(24, 48)(y)
+        y = tf.keras.layers.MaxPooling2D(pool_size=2)(y)
+        y = fire_module(48, 96)(y)
+        y = tf.keras.layers.MaxPooling2D(pool_size=2)(y)
+        y = fire_module(64, 128)(y)
+        y = tf.keras.layers.MaxPooling2D(pool_size=2)(y)
+        y = fire_module(48, 96)(y)
+        y = tf.keras.layers.MaxPooling2D(pool_size=2)(y)
+        y = fire_module(24, 48)(y)
+        y = tf.keras.layers.GlobalAveragePooling2D()(y)
+        y = tf.keras.layers.Dense(2, activation='softmax')(y)
+        model = tf.keras.Model(x, y)
+        return model

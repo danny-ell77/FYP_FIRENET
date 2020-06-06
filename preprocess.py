@@ -7,10 +7,11 @@ HEIGHT = 180
 WIDTH = 180
 NUM_CHANNELS = 3
 AUTO = tf.data.experimental.AUTOTUNE
-GCS_PATTERN = 'gs://cloudfire_lyrical-edition-273206/fire_dataset/block2/*/*.jpg'
-GCS_OUTPUT = 'gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-13/'
+GCS_PATTERN = 'gs://cloudfire_lyrical-edition-273206/fire_dataset/Eval/*/*.jpg'
+GCS_OUTPUT = 'gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-eval/'
+BATCH_SIZE = 20
 # SHARDS = # To be determined
-TARGET_SIZE = [224, 224]
+TARGET_SIZE = [100, 100]
 CLASSES = [b'Fire', b'Normal']  # do not change, maps to the labels in the data (folder names)
 
 
@@ -26,17 +27,16 @@ def read_jpeg_and_label(filename, augment=False):
      #image = tf.image.convert_image_dtype(image, tf.float32)
     label = tf.strings.split(tf.expand_dims(filename, axis=-1), sep='/')
     label = label.values[-2]
-   
-    
-    
+    return image, label
+'''    
     #Augment the data
     image = tf.image.random_crop(value=image, size=[HEIGHT, WIDTH, NUM_CHANNELS])
     image = tf.image.random_flip_left_right(image=image)
     image = tf.image.random_brightness(image=image, max_delta=63.0 / 255.0)
     image = tf.image.random_contrast(image=image, lower=0.2, upper=1.8)
     image = tf.image.random_flip_up_down(image=image) 
+'''    
     
-    return image, label
     
         
 def resize_and_crop_image(image, label):
@@ -66,7 +66,7 @@ filenames = tf.data.Dataset.list_files(GCS_PATTERN, seed=35155)  # This also shu
 dataset1 = filenames.map(read_jpeg_and_label, num_parallel_calls=AUTO)\
                     .map(resize_and_crop_image, num_parallel_calls=AUTO)\
                     .map(recompress_image, num_parallel_calls=AUTO)\
-                    .batch(batch_size=50)
+                    .batch(batch_size=BATCH_SIZE)
         
 def _bytestring_feature(list_of_bytestrings):
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=list_of_bytestrings))
