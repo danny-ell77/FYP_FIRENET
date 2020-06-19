@@ -2,7 +2,9 @@ import argparse
 import json
 import os
 
-from . import train
+EVAL_INTERVAL = 300 # every 5 minutes
+
+from . import est_train
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -114,9 +116,9 @@ if __name__ == "__main__":
     parser.set_defaults(batch_norm=False)
 
     args = parser.parse_args()
-    hparams = args.__dict__ # change 'hparams' to 'args' its much intuitive this way 
+    arg = args.__dict__ # change 'hparams' to 'args' its much intuitive this way 
 
-    output_dir = hparams.pop("output_dir")
+    output_dir = arg.pop("output_dir")
 
     # Append trial_id to path for hptuning
     output_dir = os.path.join(
@@ -127,4 +129,4 @@ if __name__ == "__main__":
     )
 
     # Run the training job
-    train.train_and_evaluate(output_dir, hparams)
+    est_train.train_and_evaluate(output_dir, arg)

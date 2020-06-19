@@ -3,42 +3,40 @@ import numpy as np
 import argparse
 
 
-HEIGHT = 180
-WIDTH = 180
+HEIGHT = 224
+WIDTH = 224
 NUM_CHANNELS = 3
 AUTO = tf.data.experimental.AUTOTUNE
-GCS_PATTERN = 'gs://cloudfire_lyrical-edition-273206/fire_dataset/Eval/*/*.jpg'
-GCS_OUTPUT = 'gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-eval/'
-BATCH_SIZE = 20
-# SHARDS = # To be determined
-TARGET_SIZE = [100, 100]
+GCS_PATTERN = 'gs://cloudfire_citric-sol_5670/fire_dataset/Eval/*/*.jpg'
+GCS_OUTPUT = 'gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-evalx/'
+BATCH_SIZE = 50
+TARGET_SIZE = [224, 224]
 CLASSES = [b'Fire', b'Normal']  # do not change, maps to the labels in the data (folder names)
 
 
 nb_images = len(tf.io.gfile.glob(GCS_PATTERN))
-#shard_size = math.ceil(nb_images / SHARDS)
-#print("Pattern matches {} images which will be rewritten as {} .tfrec files containing {} images each.".format(nb_images, SHARDS, shard_size))
-
+#  shard_size = math.ceil(nb_images / SHARDS)
+#  print("Pattern matches {} images which will be rewritten as {} .tfrec files containing {} images each.".format(nb_images, SHARDS, shard_size))
 
 
 def read_jpeg_and_label(filename, augment=False):
     bits = tf.io.read_file(filename)   # parse  from containing directory
     image = tf.image.decode_jpeg(bits)
-     #image = tf.image.convert_image_dtype(image, tf.float32)
+    #  image = tf.image.convert_image_dtype(image, tf.float32)
     label = tf.strings.split(tf.expand_dims(filename, axis=-1), sep='/')
     label = label.values[-2]
-    return image, label
-'''    
-    #Augment the data
-    image = tf.image.random_crop(value=image, size=[HEIGHT, WIDTH, NUM_CHANNELS])
-    image = tf.image.random_flip_left_right(image=image)
-    image = tf.image.random_brightness(image=image, max_delta=63.0 / 255.0)
-    image = tf.image.random_contrast(image=image, lower=0.2, upper=1.8)
-    image = tf.image.random_flip_up_down(image=image) 
-'''    
-    
-    
-        
+    if augment:
+        #  Augment the data
+        image = tf.image.random_crop(value=image, size=[HEIGHT, WIDTH, NUM_CHANNELS])
+        image = tf.image.random_flip_left_right(image=image)
+        image = tf.image.random_brightness(image=image, max_delta=63.0 / 255.0)
+        image = tf.image.random_contrast(image=image, lower=0.2, upper=1.8)
+        image = tf.image.random_flip_up_down(image=image)
+        return image, label
+    else:  
+        return image, label
+
+
 def resize_and_crop_image(image, label):
     w = tf.shape(image)[0]    # Resize and crop using "fill" algorithm:
     h = tf.shape(image)[1]  # always make sure the resulting image
@@ -61,6 +59,7 @@ def recompress_image(image, label):
     image = tf.cast(image, tf.uint8)
     image = tf.image.encode_jpeg(image, optimize_size=True, chroma_downsampling=False)
     return image, label, height, width
+
 
 filenames = tf.data.Dataset.list_files(GCS_PATTERN, seed=35155)  # This also shuffles the images
 dataset1 = filenames.map(read_jpeg_and_label, num_parallel_calls=AUTO)\
@@ -99,7 +98,7 @@ def to_tfrecord(tfrec_filewriter, img_bytes, label, height, width):
 print("Writing TFRecords")
 for shard, (image, label, height, width) in enumerate(dataset1): # loops through each line in the dataset 
     # batch size used as shard size here
-    shard_size = image.numpy().shape[0] # batch size not specified
+    shard_size = image.shape[0] # batch size not specified
 # good practice to have the number of records in the filename
     filename = GCS_OUTPUT + "shard_{:02d}-{}.tfrec".format(shard, shard_size)
 
@@ -112,6 +111,26 @@ for shard, (image, label, height, width) in enumerate(dataset1): # loops through
                                   width.numpy()[i])
             out_file.write(example.SerializeToString())
         print("Wrote files to {} containing {} records".format(filename, shard_size))
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--augment",
+        help="if specified, augment image data",
+        dest="augment",
+        action="store_true"
+    )
+    parser.add_argument(
+        "--shard_size",
+        help ="shard size for tfrecords",
+        type = int,
+        default= 50
+    )
+    args = parser.parse_args()
+    arg = args.__dict__
+    augment = arg.pop("augment")
 
 
         

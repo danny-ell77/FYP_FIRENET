@@ -3,7 +3,7 @@ from __future__ import division
 from __future__ import print_function
 import tensorflow as tf
 import numpy as np
-from .model_arch import FireEye 
+from .keras_squeezenet import FireEye 
 from .read_tfrecords import input_fn
 AUTO = tf.data.experimental.AUTOTUNE
 

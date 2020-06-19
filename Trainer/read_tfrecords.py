@@ -32,7 +32,7 @@ def read_tfrecord(example):
     height = example['size'][0]
     width = example['size'][1]
     one_hot_class = tf.sparse.to_dense(example['one_hot_class'])
-    return  image, one_hot_class
+    return  image, label
 
 
 # read from TFRecords. For optimal performance, read from multiple

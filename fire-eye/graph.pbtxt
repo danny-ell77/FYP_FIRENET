@@ -293,7 +293,7 @@ node {
       list {
         shape {
           dim {
-            size: 13
+            size: 30
           }
         }
       }
@@ -312,22 +312,39 @@ node {
         dtype: DT_STRING
         tensor_shape {
           dim {
-            size: 13
+            size: 30
           }
         }
-        string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_00-100.tfrec"
-        string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_01-100.tfrec"
-        string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_02-100.tfrec"
-        string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_03-100.tfrec"
-        string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_04-100.tfrec"
-        string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_05-100.tfrec"
-        string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_06-100.tfrec"
-        string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_07-100.tfrec"
-        string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_08-100.tfrec"
-        string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_09-100.tfrec"
-        string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_10-100.tfrec"
-        string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_11-100.tfrec"
-        string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_12-41.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-1x/shard_00-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-1x/shard_01-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-1x/shard_02-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-1x/shard_03-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-1x/shard_04-8.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-2x/shard_00-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-2x/shard_01-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-2x/shard_02-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-2x/shard_03-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-2x/shard_04-11.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_00-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_01-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_02-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_03-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_04-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_05-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_06-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_07-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_08-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_09-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_10-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_11-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_12-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_13-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_14-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_15-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_16-22.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-evalx/shard_00-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-evalx/shard_01-50.tfrec"
+        string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-evalx/shard_02-2.tfrec"
       }
     }
   }
@@ -393,7 +410,7 @@ node {
       list {
         shape {
           dim {
-            size: 13
+            size: 30
           }
         }
       }
@@ -1067,7 +1084,7 @@ node {
     key: "dataset_factory"
     value {
       func {
-        name: "_make_dataset_rcO6CfD57a8"
+        name: "_make_dataset_hx2K8TMzwB8"
       }
     }
   }
@@ -79523,7 +79540,7 @@ node {
         dtype: DT_STRING
         tensor_shape {
         }
-        string_val: "_temp_7b4f4779889648a0bf88a2efcb94aad2/part"
+        string_val: "_temp_d58abde94c25444ba6d4e457b67e71b3/part"
       }
     }
   }
@@ -113558,7 +113575,7 @@ library {
   }
   function {
     signature {
-      name: "_make_dataset_rcO6CfD57a8"
+      name: "_make_dataset_hx2K8TMzwB8"
       output_arg {
         name: "modeldataset"
         type: DT_VARIANT
@@ -113614,22 +113631,39 @@ library {
             dtype: DT_STRING
             tensor_shape {
               dim {
-                size: 13
+                size: 30
               }
             }
-            string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_00-100.tfrec"
-            string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_01-100.tfrec"
-            string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_02-100.tfrec"
-            string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_03-100.tfrec"
-            string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_04-100.tfrec"
-            string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_05-100.tfrec"
-            string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_06-100.tfrec"
-            string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_07-100.tfrec"
-            string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_08-100.tfrec"
-            string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_09-100.tfrec"
-            string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_10-100.tfrec"
-            string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_11-100.tfrec"
-            string_val: "gs://cloudfire_lyrical-edition-273206/fire_dataset/tfrecords-dataset-7/shard_12-41.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-1x/shard_00-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-1x/shard_01-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-1x/shard_02-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-1x/shard_03-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-1x/shard_04-8.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-2x/shard_00-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-2x/shard_01-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-2x/shard_02-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-2x/shard_03-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-2x/shard_04-11.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_00-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_01-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_02-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_03-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_04-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_05-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_06-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_07-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_08-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_09-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_10-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_11-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_12-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_13-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_14-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_15-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-3x/shard_16-22.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-evalx/shard_00-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-evalx/shard_01-50.tfrec"
+            string_val: "gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-evalx/shard_02-2.tfrec"
           }
         }
       }
