@@ -1,22 +1,22 @@
 import tensorflow as tf
 import numpy as np
-import argparse
+import argparse, math
 
 
 HEIGHT = 224
 WIDTH = 224
 NUM_CHANNELS = 3
 AUTO = tf.data.experimental.AUTOTUNE
-GCS_PATTERN = 'gs://cloudfire_citric-sol_5670/fire_dataset/Eval/*/*.jpg'
-GCS_OUTPUT = 'gs://cloudfire_citric-sol_5670/fire_dataset/tfrecords-dataset-evalx/'
-BATCH_SIZE = 50
+GCS_PATTERN = '/home/jupyter/block5/**/*.jpg'
+GCS_OUTPUT = '/home/jupyter/tfrecords-dataset-5xx/'
+BATCH_SIZE = 336
 TARGET_SIZE = [224, 224]
 CLASSES = [b'Fire', b'Normal']  # do not change, maps to the labels in the data (folder names)
 
 
 nb_images = len(tf.io.gfile.glob(GCS_PATTERN))
-#  shard_size = math.ceil(nb_images / SHARDS)
-#  print("Pattern matches {} images which will be rewritten as {} .tfrec files containing {} images each.".format(nb_images, SHARDS, shard_size))
+shard_size = math.ceil(nb_images / BATCH_SIZE)
+print("Pattern matches {} images which will be rewritten as {} .tfrec files containing {} images each.".format(nb_images, BATCH_SIZE, shard_size))
 
 
 def read_jpeg_and_label(filename, augment=False):
@@ -61,7 +61,7 @@ def recompress_image(image, label):
     return image, label, height, width
 
 
-filenames = tf.data.Dataset.list_files(GCS_PATTERN, seed=35155)  # This also shuffles the images
+filenames = tf.data.Dataset.list_files(GCS_PATTERN, seed=1)  # This also shuffles the images
 dataset1 = filenames.map(read_jpeg_and_label, num_parallel_calls=AUTO)\
                     .map(resize_and_crop_image, num_parallel_calls=AUTO)\
                     .map(recompress_image, num_parallel_calls=AUTO)\

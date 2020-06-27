@@ -1,0 +1,6 @@
+model_checkpoint_path: "/home/jupyter/FYP_FIRENET/fire-eye-test77/model.ckpt-500"
+all_model_checkpoint_paths: "/home/jupyter/FYP_FIRENET/fire-eye-test77/model.ckpt-445"
+all_model_checkpoint_paths: "/home/jupyter/FYP_FIRENET/fire-eye-test77/model.ckpt-459"
+all_model_checkpoint_paths: "/home/jupyter/FYP_FIRENET/fire-eye-test77/model.ckpt-473"
+all_model_checkpoint_paths: "/home/jupyter/FYP_FIRENET/fire-eye-test77/model.ckpt-487"
+all_model_checkpoint_paths: "/home/jupyter/FYP_FIRENET/fire-eye-test77/model.ckpt-500"

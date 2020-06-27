@@ -1,10 +1,10 @@
 # import the necessary packages
 import tensorflow as tf
 NCLASSES = 2
-IMAGE_SIZE = [192, 192]
+IMAGE_SIZE = [224, 224]
 
 class FireEye:
-    def build(input_tensor):
+    def build():
         bnmomemtum=0.9
         def fire(x, squeeze, expand):
             y  = tf.keras.layers.Conv2D(filters=squeeze, kernel_size=1, activation='relu', padding='same')(x)
@@ -18,7 +18,7 @@ class FireEye:
         def fire_module(squeeze, expand):
             return lambda x: fire(x, squeeze, expand)
         
-        x = tf.keras.layers.Input(shape=[*IMAGE_SIZE, 3], tensor=input_tensor) # input is 224x224 pixels RGB
+        x = tf.keras.layers.Input(shape=[*IMAGE_SIZE, 3]) # input is 224x224 pixels RGB
 
         y = tf.keras.layers.Conv2D(kernel_size=3, filters=32, padding='same', use_bias=True, activation='relu')(x)
         y = tf.keras.layers.BatchNormalization(momentum=bnmomemtum)(y)

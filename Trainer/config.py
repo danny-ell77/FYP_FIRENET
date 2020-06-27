@@ -4,7 +4,7 @@ import os
 
 EVAL_INTERVAL = 300 # every 5 minutes
 
-from . import est_train
+from . import train
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -129,4 +129,4 @@ if __name__ == "__main__":
     )
 
     # Run the training job
-    est_train.train_and_evaluate(output_dir, arg)
+    train.train_and_evaluate(output_dir, arg)
